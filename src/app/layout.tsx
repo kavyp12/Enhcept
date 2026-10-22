@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter_Tight, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
+
+// Google Analytics 4. Its domains are allowed in the CSP in next.config.ts.
+const GA_ID = "G-F13CJFFZGT";
 
 // Free stand-in for Motif's Season Sans (paid). Swap the font here and nowhere else.
 const sans = Inter_Tight({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-sans" });
@@ -24,7 +28,13 @@ export const viewport: Viewport = { themeColor: "#faf7f2" };
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        <Script id="ga" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
+        </Script>
+      </body>
     </html>
   );
 }

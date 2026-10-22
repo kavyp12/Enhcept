@@ -4,14 +4,15 @@ const dev = process.env.NODE_ENV !== "production";
 
 // Next inlines its bootstrap scripts, so script-src needs 'unsafe-inline'. Dev React also needs eval,
 // and hot reload talks over a websocket. WebGL needs nothing here; <video> from /media/ is media-src 'self'.
+// The Google domains are for Google Analytics (layout.tsx), as listed in Google's GA4 CSP guide.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://*.googletagmanager.com${dev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com",
   "media-src 'self'",
   "font-src 'self'",
-  `connect-src 'self'${dev ? " ws:" : ""}`,
+  `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com${dev ? " ws:" : ""}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
