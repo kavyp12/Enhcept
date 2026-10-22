@@ -1,0 +1,87 @@
+/* Hero film: canvas + projected HTML labels and tags. Positions are set per frame from JS. */
+.canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; } /* top/height set from JS */
+.overlay { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+
+/* Labels pinned to the model: room names, dimension values, grid bubbles (A–D / 1–3). */
+.lab { position: absolute; left: 0; top: 0; opacity: 0; transform-origin: 0 0; }
+.room, .dim {
+  translate: -50% -50%; padding: 3px 6px; border-radius: 4px; white-space: nowrap;
+  background: rgb(250 247 242 / 0.82); font: 500 9.5px/1 var(--f-mono); letter-spacing: 0.08em; color: var(--navy);
+}
+.dim { translate: -50% -135%; background: var(--page); color: rgb(31 37 87 / 0.8); }
+.bub {
+  translate: -50% -50%; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--page); border: 1px solid rgb(31 37 87 / 0.42);
+  font: 500 9px/1 var(--f-mono); color: rgb(31 37 87 / 0.78);
+}
+
+/* Callout tags: dot on the 3D anchor, a hairline leader, then the label (left, right, or centred above). */
+.tag { position: absolute; left: 0; top: 0; }
+.dot {
+  position: absolute; left: -2.5px; top: -2.5px; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--navy); box-shadow: 0 0 0 3px rgb(250 247 242 / 0.85); transform: scale(var(--k, 1));
+}
+.lead { position: absolute; top: -0.5px; right: 0; width: var(--len); height: 1px; background: rgb(31 37 87 / 0.32); }
+.label {
+  position: absolute; top: -13px; right: var(--len); height: 26px; padding: 0 11px; border-radius: 99px;
+  display: flex; align-items: center; white-space: nowrap;
+  background: rgb(255 255 255 / 0.84); border: 1px solid var(--line);
+  font: 500 10.5px/1 var(--f-mono); letter-spacing: 0.08em; color: var(--navy);
+  transform: scale(var(--k, 1)); transform-origin: right center; /* --k > 1 only when recording */
+}
+.r .lead { left: 0; right: auto; }
+.r .label { left: var(--len); right: auto; transform-origin: left center; }
+.c .lead { top: auto; bottom: 0; left: -0.5px; width: 1px; height: var(--len); }
+.c .label { top: auto; right: auto; left: 0; bottom: var(--len); translate: -50% 0; transform-origin: center bottom; }
+
+.ai .dot { border-radius: 1px; background: var(--red); }
+.ai .lead { background: rgb(218 72 59 / 0.45); }
+.ai .label { color: var(--red-deep); border-color: rgb(218 72 59 / 0.35); background: rgb(255 255 255 / 0.9); }
+
+/* Recording only (?rec=1, copy hidden): the stage title drawn into the film, top-left. */
+.title { position: absolute; left: 150px; top: 84px; transform: scale(var(--k, 1)); transform-origin: 0 0; }
+.titleKick { display: flex; align-items: center; gap: 10px; font: 500 13px/1 var(--f-mono); letter-spacing: 0.1em; color: var(--navy); }
+.titleKick i { width: 9px; height: 9px; background: var(--red); }
+.titleLine { margin-top: 12px; font: 400 22px/1.2 var(--f-sans); letter-spacing: -0.01em; color: var(--ink); }
+
+/* No-WebGL fallback: the recorded poster (public/media/hero.jpg), roughly where the live model sits. */
+.still {
+  position: absolute; left: 50%; bottom: 100px; height: min(46%, 60vw); aspect-ratio: 16 / 9; translate: -50% 0;
+  background: center / contain no-repeat;
+}
+
+@media (max-width: 899px) {
+  .tag { display: none; }
+}
+
+/* ---------- Stage rail (StageRail.tsx), under the hero copy ---------- */
+.rail { display: grid; justify-items: center; gap: 12px; margin-top: 6px; }
+.steps {
+  display: flex; gap: 2px; padding: 4px; border-radius: 99px;
+  background: rgb(255 255 255 / 0.72); border: 1px solid var(--line);
+}
+.step {
+  position: relative; display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px;
+  border: 0; border-radius: 99px; background: none; cursor: pointer;
+  font: 500 11.5px/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint);
+  transition: background-color 0.2s, color 0.2s;
+}
+.step:hover { color: var(--navy); background: var(--soft); }
+.step[aria-current] { color: var(--navy); background: #fff; box-shadow: 0 1px 3px rgb(31 37 87 / 0.12); }
+.mark { width: 7px; height: 7px; background: var(--line-strong); transition: background-color 0.2s; }
+.step[aria-current] .mark { background: var(--red); }
+.bar {
+  position: absolute; left: 14px; right: 14px; bottom: 4px; height: 1.5px; border-radius: 1px;
+  background: var(--navy); opacity: 0; transform-origin: left; transform: scaleX(var(--hero-p, 1));
+}
+.step[aria-current] .bar { opacity: 0.55; }
+.caption { min-height: 1.4em; font-size: 15px; line-height: 1.4; color: var(--muted); text-align: center; }
+.kick { margin-right: 10px; font: 500 11.5px/1 var(--f-mono); letter-spacing: 0.08em; color: var(--navy); white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .step { height: 40px; padding: 0 12px; gap: 7px; }
+  .bar { left: 10px; right: 10px; }
+  .caption { font-size: 14px; max-width: 34ch; }
+  .kick { display: block; margin: 0 0 6px; }
+}
